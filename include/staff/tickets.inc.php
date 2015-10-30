@@ -403,12 +403,10 @@ if ($results) {
                             title="<?php echo sprintf(__('Sort by %s %s'), __('Assignee'), __($negorder)); ?>"><?php echo __('Assigned To'); ?></a></th>
                 <?php
                 }
-            } else { ?>
+            } ?>
                 <th width="150">
                     <a <?php echo $dept_sort; ?> href="tickets.php?sort=dept&order=<?php echo $negorder;?><?php echo $qstr; ?>"
                         title="<?php echo sprintf(__('Sort by %s %s'), __('Department'), __($negorder)); ?>"><?php echo __('Department');?></a></th>
-            <?php
-            } ?>
         </tr>
      </thead>
      <tbody>
@@ -435,9 +433,8 @@ if ($results) {
                         $lc=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
                     else
                         $lc=' ';
-                }else{
-                    $lc=Format::truncate($row['dept_name'],40);
                 }
+                $deptcol=Format::truncate($row['dept_name'],40);
                 $tid=$row['number'];
 
                 $subject = Format::truncate($subject_field->display(
@@ -491,7 +488,10 @@ if ($results) {
                 <?php
                 }
                 ?>
+                <?php if ($showassigned) { ?>
                 <td nowrap>&nbsp;<?php echo $lc; ?></td>
+                <? } ?>
+                <td nowrap>&nbsp;<?php echo $deptcol; ?></td>
             </tr>
             <?php
             } //end of while.
@@ -501,7 +501,7 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="<?=($showassigned ? 8 : 7)?>">
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
