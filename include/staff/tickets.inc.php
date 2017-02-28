@@ -465,7 +465,6 @@ return false;">
             <?php
             // Swap some columns based on the queue.
             if ($showassigned ) {
-                unset($queue_columns['dept']);
                 if (!strcasecmp($status,'closed'))
                     $queue_columns['assignee']['heading'] =  __('Closed By');
                 else
@@ -481,6 +480,10 @@ return false;">
             // Query string
             unset($args['sort'], $args['dir'], $args['_pjax']);
             $qstr = Http::build_query($args);
+
+            // Shrink date column
+            $queue_columns['date']['width'] = '100px';
+
             // Show headers
             foreach ($queue_columns as $k => $column) {
                 echo sprintf( '<th width="%s"><a href="?sort=%s&dir=%s&%s"
@@ -512,16 +515,14 @@ return false;">
                 elseif($T['isoverdue'])
                     $flag='overdue';
 
-                $lc='';
+                $assignedcolumn='';
                 if ($showassigned) {
                     if ($T['staff_id'])
-                        $lc = new AgentsName($T['staff__firstname'].' '.$T['staff__lastname']);
+                        $assignedcolumn = new AgentsName($T['staff__firstname'].' '.$T['staff__lastname']);
                     elseif ($T['team_id'])
-                        $lc = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
+                        $assignedcolumn = Team::getLocalById($T['team_id'], 'name', $T['team__name']);
                 }
-                else {
-                    $lc = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
-                }
+                $deptcolumn = Dept::getLocalById($T['dept_id'], 'name', $T['dept__name']);
                 $tid=$T['number'];
                 $subject = $subject_field->display($subject_field->to_php($T['cdata__subject']));
                 $threadcount=$T['thread_count'];
@@ -547,7 +548,7 @@ return false;">
                     href="tickets.php?id=<?php echo $T['ticket_id']; ?>"
                     data-preview="#tickets/<?php echo $T['ticket_id']; ?>/preview"
                     ><?php echo $tid; ?></a></td>
-                <td align="center" nowrap><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
+                <td align="center"><?php echo Format::datetime($T[$date_col ?: 'lastupdate']) ?: $date_fallback; ?></td>
                 <td><div style="max-width: <?php
                     $base = 279;
                     // Make room for the paperclip and some extra
@@ -591,8 +592,10 @@ return false;">
                 <?php
                 }
                 ?>
-                <td nowrap><span class="truncate" style="max-width: 169px"><?php
-                    echo Format::htmlchars($lc); ?></span></td>
+                <td><span style="max-width: 169px"><?php
+                    echo Format::htmlchars($assignedcolumn); ?></span></td>
+                <td><span style="max-width: 169px"><?php
+                    echo Format::htmlchars($deptcolumn); ?></span></td>
             </tr>
             <?php
             } //end of foreach
