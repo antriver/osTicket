@@ -51,6 +51,9 @@ class OverviewReport {
         return Format::date(Misc::dbtime($this->start), false, $format);
     }
 
+    function getEnd() {
+        return $this->end;
+    }
 
     function getDateRange() {
         global $cfg;
@@ -141,6 +144,9 @@ class OverviewReport {
 
         list($start, $stop) = $this->getDateRange();
         $times = Ticket::objects()
+            ->filter(array(
+                'thread__created__range' => array($start, $stop),
+            ))
             ->constrain(array(
                 'thread__entries' => array(
                     'thread__entries__type' => 'R'
